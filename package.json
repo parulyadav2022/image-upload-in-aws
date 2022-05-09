@@ -1,0 +1,31 @@
+{
+  "name": "porject3",
+  "version": "1.0.0",
+  "description": "- Create a group database `groupXDatabase`. You can clean the db you previously used and resue that.\r - This time each group should have a *single git branch*. Coordinate amongst yourselves by ensuring every next person pulls the code last pushed by a team mate. You branch will be checked as part of the demo. Branch name should follow the naming convention `project/booksManagementGroupX`\r - Follow the naming conventions exactly as instructed.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Darshit-dev/Porject3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Darshit-dev/Porject3/issues"
+  },
+  "homepage": "https://github.com/Darshit-dev/Porject3#readme",
+  
+    "dependencies": {
+      "body-parser": "^1.19.0",
+      "cors": "^2.8.5",
+      "express": "^4.17.1",
+      "jsonwebtoken": "^8.5.1",
+      "moment": "^2.29.3",
+      "mongoose": "^6.2.3",
+      "nodemon": "^2.0.15",
+      "validator": "^13.7.0"
+  }
+}
