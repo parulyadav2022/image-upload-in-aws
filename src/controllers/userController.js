@@ -19,13 +19,13 @@ const registerUser = async function (req, res) {
         .send({ status: false, message: "Please Enter Title" });
     }
 
-    //is Valid title or not
-    // if (["Mr", "Miss", "Mrs"].indexOf(title) != -1) {
-    //   return res.status(400).send({
-    //     status: false,
-    //     message: "Please Enter valid title from 'Mr','Miss','Mrs'",
-    //   });
-    // }
+    
+    if (!["Mr", "Miss", "Mrs"].includes(title)) {
+      return res.status(400).send({
+        status: false,
+        message: "Please Enter valid title from 'Mr','Miss','Mrs'",
+      });
+    }
 
     if (!name) {
       return res
