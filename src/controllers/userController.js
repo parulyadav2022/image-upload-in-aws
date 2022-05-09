@@ -46,7 +46,7 @@ const registerUser = async function (req, res) {
         .send({ status: false, message: "Mobile number is already registred" });
     }
 
-    if (!/^\d{10}$/.test(phone)) {
+    if (!(/^\d{10}$/).test(phone)) {
       return res
         .status(400)
         .send({ status: false, message: "Mobile no should be valid" });
@@ -86,22 +86,15 @@ const registerUser = async function (req, res) {
         });
     }
 
-    if (!address) {
-      return res
-        .status(400)
-        .send({ status: false, message: "Please Enter address" });
-    }
+    
     if (!address.street) {
       return res.status(400).send({ status: false, message: "Please Enter street" });
     }
 
-    if (typeof address.pincode != NaN  ) {
+    if (!(/^\d{6}$/).test(address.pincode))  {
         return res.status(400).send({ status: false, message: "only number is accepted in pincode " });
     }
     
-    if((address.pincode).length != 6){
-        return res.status(400).send({ status: false, message:"Please Enter pincode in within the range" })
-    }
 
 
     const createUser = await userModel.create(getBodyData);
