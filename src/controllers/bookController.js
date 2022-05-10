@@ -102,7 +102,7 @@ const createBook = async function (req, res) {
 const getBooks = async function (req, res) {
   try {
     let getQueryData = req.query;
-    //if user write any other query data then it will return error (remaining)
+    
 
     const { userId, category, subcategory } = getQueryData;
     if (!userId && !category && !subcategory) {
@@ -110,7 +110,7 @@ const getBooks = async function (req, res) {
         .status(400)
         .send({ status: false, message: "Please enter valid query data" });
     }
-    valueToHide = {
+    valueToShow = {
       _id: 1,
       title: 1,
       excerpt: 1,
@@ -122,7 +122,7 @@ const getBooks = async function (req, res) {
 
     const findBooks = await bookModel
       .find({ $and: [getQueryData, { isDeleted: false }] })
-      .select(valueToHide)
+      .select(valueToShow)
       .sort({ title: 1 });
     return res
       .status(200)
@@ -164,18 +164,18 @@ const getBooksDataById = async function (req, res) {
 const updateBook = async function (req, res) {
   try {
     getBookId = req.params;
-    getQuery = req.query;
-    if(!isValidObjectId(getBookId)) {return res.status(400).send({ status:false, message:"Invalid Obejct Id"})}
-    if(Object.keys(getQuery).length == 0){ return res.status(400).send({ status: false, message: "Please enter query to update" }); }
-    const { title, excerpt, releasedDate, ISBN } = getQuery;
+    getBody = req.body;
+    //if(!isValidObjectId(getBookId)) {return res.status(400).send({ status:false, message:"Invalid Obejct Id"})}
+    if(Object.keys(getBody).length == 0){ return res.status(400).send({ status: false, message: "Please enter query to update" }); }
+    const { title, excerpt, releasedDate, ISBN } = getBody;
 
     if (!title && !excerpt && !releasedDate && !ISBN) {
       return res
         .status(400)
-        .send({ status: false, message: "Please enter valid query data" });
+        .send({ status: false, message: "Please enter valid body data" });
     }
      
-    let checkDuplicateValue = await bookModel.find(getQuery);
+    let checkDuplicateValue = await bookModel.find(getBody);
 
     if (checkDuplicateValue.length != 0) {
       return res
@@ -190,7 +190,7 @@ const updateBook = async function (req, res) {
         .send({ status: false, message: "No book available for this id" });
     }
 
-    let updateDate = await bookModel.findOneAndUpdate(getBookId, getQuery);
+    let updateDate = await bookModel.findOneAndUpdate(getBookId, getBody);
     return res
       .status(200)
       .send({ status: true, message: "Success", data: updateDate });
