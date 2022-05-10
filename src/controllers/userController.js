@@ -121,6 +121,12 @@ const loginUser = async function (req, res) {
   try {
     const getBodyData = req.body;
     const { email, password } = getBodyData;
+    
+   if (Object.keys(getBodyData).length == 0) {
+      return res
+        .status(400)
+        .send({ status: false, message: "Please Enter Data" });
+    } 
 
     if (!email) {
         return res
