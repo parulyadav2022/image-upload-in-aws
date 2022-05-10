@@ -85,10 +85,21 @@ const registerUser = async function (req, res) {
           message: "password length should be in the range of 8 to 15 only",
         });
     }
-
     
+   if (!address) {
+      return res.status(400).send({ status: false, message: "Please Enter address" });
+    } 
+
     if (!address.street) {
       return res.status(400).send({ status: false, message: "Please Enter street" });
+    }
+    
+    if (!address.city) {
+      return res.status(400).send({ status: false, message: "Please Enter city" });
+    }
+    
+    if (!address.pincode) {
+      return res.status(400).send({ status: false, message: "Please Enter pincode" });
     }
 
     if (!(/^\d{6}$/).test(address.pincode))  {
