@@ -86,21 +86,21 @@ const registerUser = async function (req, res) {
         });
     }
     
-   if (!address) {
-      return res.status(400).send({ status: false, message: "Please Enter address" });
-    } 
+  //  if (!address) {
+  //     return res.status(400).send({ status: false, message: "Please Enter address" });
+  //   } 
 
-    if (!address.street) {
-      return res.status(400).send({ status: false, message: "Please Enter street" });
-    }
+  //   if (!address.street) {
+  //     return res.status(400).send({ status: false, message: "Please Enter street" });
+  //   }
     
-    if (!address.city) {
-      return res.status(400).send({ status: false, message: "Please Enter city" });
-    }
+  //   if (!address.city) {
+  //     return res.status(400).send({ status: false, message: "Please Enter city" });
+  //   }
     
-    if (!address.pincode) {
-      return res.status(400).send({ status: false, message: "Please Enter pincode" });
-    }
+  //   if (!address.pincode) {
+  //     return res.status(400).send({ status: false, message: "Please Enter pincode" });
+  //   }
 
     if (!(/^\d{6}$/).test(address.pincode))  {
         return res.status(400).send({ status: false, message: "only number is accepted in pincode " });
@@ -125,7 +125,7 @@ const loginUser = async function (req, res) {
    if (Object.keys(getBodyData).length == 0) {
       return res
         .status(400)
-        .send({ status: false, message: "Please Enter Data" });
+        .send({ status: false, message: "Please Enter Data 'email," });
     } 
 
     if (!email) {
