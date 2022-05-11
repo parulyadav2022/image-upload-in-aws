@@ -1,6 +1,7 @@
 const userModel = require("../models/userModel");
 const jwt = require("jsonwebtoken");
 
+
 //register api
 const registerUser = async function (req, res) {
   try {
@@ -72,6 +73,7 @@ const registerUser = async function (req, res) {
         .send({ status: false, message: "Email should be valid" });
     }
 
+    //!TO DO:to trim all the value, to do validation of empty string
     if (!password) {
       return res
         .status(400)
@@ -151,7 +153,7 @@ const loginUser = async function (req, res) {
 
     const token = jwt.sign(
       {
-        userid: findUser._id.toString(),
+        userId: findUser._id.toString(),
         iat: Math.floor(Date.now() / 1000),
         exp: Math.floor(Date.now() / 1000) + 10 * 60 * 60,
       },
