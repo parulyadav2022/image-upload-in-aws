@@ -3,8 +3,10 @@ const userModel = require('../models/userModel');
 
 
 const authentication = async function authUser(req, res, next){
-    let header = req.header
+    
+    
     try {
+        let token = req.headers["X-api-key"]
         const dekodedToken = await jwt.verify(token,'Project3')
         next()
 

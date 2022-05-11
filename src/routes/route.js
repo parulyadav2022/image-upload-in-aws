@@ -6,10 +6,11 @@ const bookController = require('../controllers/bookController')
 //user api
 router.post('/register',userController.registerUser)
 router.post('/login',userController.loginUser)
-router.post('/book' , bookController.createBook)
+
 
 //books api
-// router.post('/books',)
+
+ router.post('/book' , bookController.createBook)
  router.get('/books',bookController.getBooks)
  router.get('/books/:bookId',bookController.getBooksDataById)
  router.put('/books/:bookId',bookController.updateBook)
