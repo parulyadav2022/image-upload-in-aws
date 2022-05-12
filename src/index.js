@@ -13,7 +13,7 @@ mongoose.connect('mongodb+srv://Uranium-Batch:aruSjkdGdfhc9MRK@functionup.eel5r.
 })
 .then( () => console.log("MongoDb is connected"))
 .catch ( err => console.log(err) )
-
+ 
 
  
 app.use('/', route);

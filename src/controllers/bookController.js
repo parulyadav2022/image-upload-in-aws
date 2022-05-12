@@ -1,3 +1,4 @@
+//@ts-check
 const bookModel = require("../models/bookModel");
 const reviewModel = require("../models/reviewModel");
 const mongoose = require("mongoose");
@@ -41,7 +42,7 @@ const createBook = async function (req, res) {
       return res
         .status(400)
         .send({ status: false, message: "Please enter unique title" });
-
+    //!add to check duplicate value
     if (!isValid(excerpt)) {
       return res
         .status(400)
@@ -65,7 +66,7 @@ const createBook = async function (req, res) {
     if (checkISBN)
       return res
         .status(400)
-        .send({ status: false, message: "Please Enter unique isbn" });
+        .send({ status: false, message: "Please Enter unique ISBN" });
 
     //if category is not specified
     if (!isValid(category)) {
@@ -112,20 +113,24 @@ const getBooks = async function (req, res) {
     console.log(getQueryData)
     
     const { userId, category, subcategory } = getQueryData;
+
+     if(Object.keys(getQueryData).length>0){
+      if (!userId && !category && !subcategory ) {
+        return res
+          .status(400)
+          .send({ status: false, message: "Please enter value like  'userId','category','subcategory'" });
+      }
+     }
     
-    if (!userId && !category && !subcategory ) {
-      return res
-        .status(400)
-        .send({ status: false, message: "Please enter valid query data" });
-    }
 
     //value which will show in response
-    valueToShow = {
+    let valueToShow = {
       _id: 1,
       title: 1,
       excerpt: 1,
       userId: 1,
       category: 1,
+      subcategory: 1,
       releasedAt: 1,
       reviews: 1,
     };
@@ -134,8 +139,21 @@ const getBooks = async function (req, res) {
       .find({ $and: [getQueryData, { isDeleted: false }] })
       .select(valueToShow)
       .sort({ title: 1 });
+
+      // findBooks.sort((a, b) => {
+      //   let fa = a.title.toLowerCase(),
+      //      fb = b.title.toLowerCase();
+  
+      //   if (fa < fb) {
+      //     return -1;
+      //   }
+      //   if (fa > fb) {
+      //     return 1;
+      //   }
+      //   return 0;
+      // });
     
-    if (!findBooks) { return res.status(404).send({ status: false, message: "No Book found" }); }
+    if (findBooks.length==0) { return res.status(404).send({ status: false, message: "No Book found" }); }
     return res
       .status(200)
       .send({ status: true, message: "success", data: findBooks });
@@ -150,7 +168,7 @@ const getBooksDataById = async function (req, res) {
   try {
     let getbookId = req.params.bookId;
     //console.log(getbookId);
-    if(!isValidObjectId(getBookId)){res.status(400).send({status: false,message:"BookId is in invalid format."})}
+    if(!isValidObjectId(getbookId)){return res.status(400).send({status: false,message:"BookId is in invalid format."})}
     //try to find book from that id
     let findBooks = await bookModel
       .findOne({ _id: getbookId, isDeleted: false })
@@ -163,7 +181,7 @@ const getBooksDataById = async function (req, res) {
 
     //Data from reviewModel 
     const findReviews = await reviewModel.find({ bookId: getbookId });
-    console.log(findReviews)
+    
     findBooks.reviewsData = findReviews;
 
     return res
@@ -177,23 +195,28 @@ const getBooksDataById = async function (req, res) {
 //updateBook
 const updateBook = async function (req, res) {
   try {
-    getBookId = req.params;
-    getBody = req.body;
-
-    //if(!isValidObjectId(getBookId)) {return res.status(400).send({ status:false, message:"Invalid Obejct Id"})}
+    let getBookId = req.params.bookId;
+    let getBody = req.body;
+    
+    if(!isValidObjectId(getBookId)) {return res.status(401).send({ status:false, message:"Invalid Obejct Id"})}
     if(Object.keys(getBody).length == 0){ return res.status(400).send({ status: false, message: "Please enter body to update" }); }
+    
+  
+
     const { title, excerpt, releasedDate, ISBN } = getBody;
 
+  
     if (!title && !excerpt && !releasedDate && !ISBN) {
       return res
         .status(400)
-        .send({ status: false, message: "Please enter valid body data" });
+        .send({ status: false, message: "You can update only 'title', 'excerpt', 'releasedDate', 'ISBN' only" });
     }
-     
-    let checkDuplicateValue = await bookModel.find(getBody);
-    //!I do here genralize meesege so ,is it ok or not
-    //?specify things
-    if (checkDuplicateValue.length != 0) {
+    
+
+
+    let checkDuplicateValue = await bookModel.findOne({$or :[{title:title},{ISBN:ISBN}]});
+   
+    if (checkDuplicateValue) {
       return res
         .status(409)
         .send({ status: false, message: "you can not update duplicate value" });
@@ -206,7 +229,7 @@ const updateBook = async function (req, res) {
         .send({ status: false, message: "No book available for this id" });
     }
     
-    let updateData = await bookModel.findOneAndUpdate(getBookId, getBody);
+    let updateData = await bookModel.findByIdAndUpdate({_id :getBookId}, getBody,{new:true});
     return res
       .status(200)
       .send({ status: true, message: "Success", data: updateData });
