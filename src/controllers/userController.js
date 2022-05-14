@@ -39,7 +39,7 @@ const registerUser = async function (req, res) {
 				.status(400)
 				.send({ status: false, message: 'Please Enter name' })
 		}
-//we can use has own property also to handle this
+
 		if (!isValid(phone)) {
 			return res
 				.status(400)

@@ -12,6 +12,7 @@ const isValidObjectId = function (objectId) {
 	return mongoose.Types.ObjectId.isValid(objectId)
 }
 
+
 const createBook = async function (req, res) {
 	try {
 		const getBodyData = req.body
@@ -43,6 +44,8 @@ const createBook = async function (req, res) {
 				.send({ status: false, message: 'Please Enter excerpt' })
 		}
 
+		//if userId is not valid
+		if(!isValid(userId)) {return res.status(400).send({ status: false, message: 'Please Enter userId' })}
 		if (!isValidObjectId(userId)) {
 			return res.status(400).send({ status: false, message: 'Invalid userId' })
 		}
@@ -52,7 +55,7 @@ const createBook = async function (req, res) {
 				.status(400)
 				.send({ status: false, message: 'Please Enter ISBN' })
 		}
-		if (!/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN)) {
+		if (!/^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/.test(ISBN.trim())) {
 			return res
 				.status(400)
 				.send({ status: false, message: 'Please Enter valid ISBN number' })
@@ -84,7 +87,7 @@ const createBook = async function (req, res) {
 				.send({ status: false, message: 'Please Enter a released date' })
 		}
 
-		if (!releasedAt.match(/^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/))
+		if (!releasedAt.trim().match(/^\d{4}-(0[1-9]|1[012])-(0[1-9]|[12][0-9]|3[01])$/))
 			return res.status(400).send({
 				status: false,
 				message: "Released date format should be in 'yyyy-mm-dd' format",
@@ -125,7 +128,7 @@ const getBooks = async function (req, res) {
 			userId: 1,
 			category: 1,
 			subcategory: 1,
-			releasedAt: 1,
+			releasedAt: 1, 
 			reviews: 1,
 		}
 
@@ -134,20 +137,7 @@ const getBooks = async function (req, res) {
 			.select(valueToShow)
 			.collation({ locale: 'en' })
 			.sort({ title: 1 })
-		//case-sensetive
-		//!sorting issue
-		// findBooks.sort((a, b) => {
-		//   let fa = a.title.toLowerCase(),
-		//      fb = b.title.toLowerCase();
-
-		//   if (fa < fb) {
-		//     return -1;
-		//   }
-		//   if (fa > fb) {
-		//     return 1;
-		//   }
-		//   return 0;
-		// });
+		
 
 		if (findBooks.length == 0) {
 			return res.status(404).send({ status: false, message: 'No Book found' })
@@ -173,7 +163,7 @@ const getBooksDataById = async function (req, res) {
 		}
 		//try to find book from that id
 		let findBooks = await bookModel
-			.findOne({ _id: getbookId, isDeleted: false })
+			.findOne({ _id: getbookId, isDeleted: false },{deletedAt:0,__v:0})
 			.lean()
 
 		//if doc not found
@@ -182,7 +172,8 @@ const getBooksDataById = async function (req, res) {
 		}
 
 		//Data from reviewModel
-		const findReviews = await reviewModel.find({ bookId: getbookId })
+		let  valueTohide = { isDeleted: 0,createdAt: 0,updatedAt: 0,__v: 0}
+		const findReviews = await reviewModel.find({ bookId: getbookId },valueTohide)
 
 		findBooks.reviewsData = findReviews
 
@@ -203,7 +194,7 @@ const updateBook = async function (req, res) {
 		if (!isValidObjectId(getBookId)) {
 			return res
 				.status(401)
-				.send({ status: false, message: 'Invalid Object Id' })
+				.send({ status: false, message: 'Invalid Book Id' })
 		}
 		if (Object.keys(getBody).length == 0) {
 			return res
@@ -221,14 +212,13 @@ const updateBook = async function (req, res) {
 			})
 		}
 
-		let checkDuplicateValue = await bookModel.findOne({
-			$or: [{ title: title }, { ISBN: ISBN }],
-		})
+		let checkDuplicateValue = await bookModel.findOne({$or: [{ title: title }, { ISBN: ISBN }]})
+
 
 		if (checkDuplicateValue) {
 			return res
 				.status(409)
-				.send({ status: false, message: 'you can not update duplicate value' })
+				.send({ status: false, message: 'you can not update duplicate value , TITLE or ISBN' })
 		}
 
 		let findBookDoc = await bookModel.findOne({ isDeleted: false, getBookId })

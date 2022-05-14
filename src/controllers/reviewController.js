@@ -8,7 +8,8 @@ const isValid = function (value) {
 	return true
 }
 
-const isvalidObjectId = function (objectId) {
+
+const isValidObjectId = function (objectId) {
 	return mongoose.Types.ObjectId.isValid(objectId)
 }
 
@@ -25,11 +26,12 @@ const addReview = async function (req, res) {
 				.send({ status: false, message: 'Please Enter data to create review' })
 		}
 		//validation
-		if (!isvalidObjectId(bookId)) {
+		if (!isValidObjectId(bookId)) {
 			return res
 				.status(403)
 				.send({ status: false }, { message: 'Invalid bookId' })
 		}
+
 		const isBookAvalilable = await bookModel
 			.findOne({ _id: bookId, isDeleted: false })
 			.lean()
@@ -54,7 +56,7 @@ const addReview = async function (req, res) {
 			return res
 				.status(400)
 				.send({ status: false, message: 'rating must be in the range of 1-5' })
-		}
+		} 
 
 		//if passing validation
 
@@ -83,18 +85,34 @@ const updateReview = async function (req, res) {
 		const getBookId = req.params.bookId
 		const getReviewId = req.params.reviewId
 
+
+		if(!isValidObjectId(getBookId)){return res.status(400).send({ status: false, message: 'please enter Valid bookId' })}
+		if(!isValidObjectId(getReviewId)){return res.status(400).send({ status: false, message: 'please enter Valid reviewId' })}
+		
+		const findBookDoc = await bookModel
+			.findOne({ _id: getBookId, isDeleted: false })
+			.lean()
+
+		if (!findBookDoc) {
+			return res
+				.status(404)
+				.send({ status: false, message: 'Book does not exists ' })
+		}
+
+		const findReviewDoc = await reviewModel.findOne({ _id: getReviewId, isDeleted: false })
+		if (!findReviewDoc) {return res.status(404).send({ status: false, message: 'Review does not exsits'})}
+
+
 		if (Object.keys(getBodyData).length == 0) {
 			return res
 				.status(400)
 				.send({ status: false, message: 'Please Enter Data' })
 		}
+
+		//validation
 		const { review, rating, reviewedBy } = getBodyData
-
+		if(rating){
 		if (!Number.isInteger(rating)) {
-			//if(!isValid(rating)){return res.status(400).send({ message:"please enter rating first"})}
-
-			//if user enters any any non integer value
-			//if(!isValid(getreviewId)){return res.status(400).send({ message:"please enter reviewId first to update review"})}
 			return res
 				.status(400)
 				.send({ status: false, message: 'rating should be in number' })
@@ -104,24 +122,16 @@ const updateReview = async function (req, res) {
 			return res
 				.status(400)
 				.send({ status: false, message: 'rating must be in the range of 1-5' })
-		}
+		}}
+		
 
-		const findBookDoc = await bookModel
-			.findOne({ _id: getBookId, isDeleted: false })
-			.lean()
-
-		if (!findBookDoc) {
-			return res
-				.status(404)
-				.send({ status: false, message: 'Book not Found to update' })
-		}
-
+		
+		
 		const updatedReview = await reviewModel.findOneAndUpdate(
 			{ _id: getReviewId, isDeleted: false },
-			{ $set: { reviews: review, rating: rating, reviewedBy: reviewedBy } },
+			{ $set: { review: review, rating: rating, reviewedBy: reviewedBy } },
 			{ new: true }
 		)
-		console.log(updatedReview)
 
 		return res
 			.status(200)
@@ -136,10 +146,16 @@ const deleteReview = async function (req, res) {
 		let bookId = req.params.bookId
 		let reviewId = req.params.reviewId
 
+		if(!isValidObjectId(bookId)){return res.status(400).send({ status: false, message: 'please enter Valid bookId' })}
+		if(!isValidObjectId(reviewId)){return res.status(400).send({ status: false, message: 'please enter Valid reviewId' })}
+		
+
 		let isReviewExists = await reviewModel.findOne({
-			_id: reviewId,
+			_id: reviewId,		
+			bookId: bookId, //to check if review belongs to book
 			isDeleted: false,
 		})
+
 		if (!isReviewExists) {
 			return res
 				.status(404)
@@ -153,11 +169,11 @@ const deleteReview = async function (req, res) {
 
 		await bookModel.findOneAndUpdate({ _id: bookId }, { $inc: { reviews: -1 } })
 
-		{
+		
 			return res
 				.status(200)
 				.send({ status: true, message: 'review deleted successfully' })
-		}
+		
 	} catch (error) {
 		return res.status(500).send({ status: false, message: error.message })
 	}
