@@ -29,7 +29,7 @@ const addReview = async function (req, res) {
 		if (!isValidObjectId(bookId)) {
 			return res
 				.status(403)
-				.send({ status: false }, { message: 'Invalid bookId' })
+				.send({ status: false, message: 'Invalid bookId' })
 		}
 
 		const isBookAvalilable = await bookModel
@@ -39,7 +39,13 @@ const addReview = async function (req, res) {
 			return res.status(404).send({ message: 'Book is not available' })
 		}
 
-		const { rating } = getBodyData
+		const { rating,reviewedBy } = getBodyData
+
+		if(reviewedBy){
+			if(!isValid(reviewedBy)){return res.status(400).send({ status: false, message: 'please enter your name' })}
+		}
+
+		
 		if (!isValid(rating)) {
 			return res.status(400).send({ message: 'please enter rating first' })
 		}
@@ -69,7 +75,7 @@ const addReview = async function (req, res) {
 		//to increment review in bookmodel after adding review
 		await bookModel.updateOne({ _id: bookId }, { $inc: { reviews: 1 } })
 
-		return res.status(200).send({
+		return res.status(201).send({
 			status: true,
 			message: 'Successfully added review',
 			data: reviewedData,
@@ -164,7 +170,7 @@ const deleteReview = async function (req, res) {
 
 		await reviewModel.findOneAndUpdate(
 			{ _id: reviewId },
-			{ $set: { isDeleted: true, deletedAt: new Date() } }
+			{ $set: { isDeleted: true, deletedAt: Date.now() } }
 		)
 
 		await bookModel.findOneAndUpdate({ _id: bookId }, { $inc: { reviews: -1 } })

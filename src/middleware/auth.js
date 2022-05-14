@@ -51,7 +51,6 @@ const authorization = async function (req, res, next) {
 
         if (decodedToken.userId != isUserId) { return res.status(401).send({ status: false, message: "Unauthorized access" }) }
       // req.userId =decodedToken.userId
-      console.log(isUserId)
         next();
     } catch (error) { res.status(500).send({ status: false, error: error.message }) }
 }

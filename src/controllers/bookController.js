@@ -107,7 +107,7 @@ const createBook = async function (req, res) {
 const getBooks = async function (req, res) {
 	try {
 		let getQueryData = req.query
-		//console.log(getQueryData)
+		
 
 		const { userId, category, subcategory } = getQueryData
 
@@ -173,7 +173,7 @@ const getBooksDataById = async function (req, res) {
 
 		//Data from reviewModel
 		let  valueTohide = { isDeleted: 0,createdAt: 0,updatedAt: 0,__v: 0}
-		const findReviews = await reviewModel.find({ bookId: getbookId },valueTohide)
+		const findReviews = await reviewModel.find({ bookId: getbookId ,isDeleted: false},valueTohide)
 
 		findBooks.reviewsData = findReviews
 
