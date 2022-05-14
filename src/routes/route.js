@@ -12,7 +12,7 @@ router.post('/login',userController.loginUser)
 
 //books api
 
- router.post('/book',authentication,authorization,bookController.createBook)
+ router.post('/books',authentication,authorization,bookController.createBook)
  router.get('/books',bookController.getBooks)
  router.get('/books/:bookId',bookController.getBooksDataById)
  router.put('/books/:bookId',authentication,authorization,bookController.updateBook)
@@ -21,8 +21,8 @@ router.post('/login',userController.loginUser)
 //Review Api
 router.post('/books/:bookId/review',reviewController.addReview)
 router.put('/books/:bookId/review/:reviewId',reviewController.updateReview)
- router.delete('/books/:bookId/review/:reviewId',authentication,authorization,reviewController.deleteReview)
+ router.delete('/books/:bookId/review/:reviewId',reviewController.deleteReview)
 
 
 
-module.exports = router 
+module.exports = router
